@@ -5,19 +5,15 @@ import (
 	"fmt"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
-	"google.golang.org/grpc"
 	restAPITest "http"
-	"http/employee"
-	"log"
-	"net"
 )
 
 const (
 	host     = "localhost"
 	port     = 5432
-	user     = "user"
+	user     = "postgres"
 	password = 1234
-	dbname   = "employeeGo"
+	dbname   = "usersGo"
 )
 
 var Validator = validator.New()
@@ -58,6 +54,9 @@ func main() {
 	defer Db.Close()
 
 	err = Db.Ping()
+	if err != nil {
+		panic(err)
+	}
 	fmt.Println("Successfully connected!")
 
 	memoryStorage := restAPITest.NewMemoryStorage(Db)
@@ -72,16 +71,13 @@ func main() {
 	app.Delete("/employee/:id", handler.DeleteEmployee)
 	app.Listen(":8080")
 
-	lis, err := net.Listen("tcp", ":50051")
-	if err != nil {
-		log.Fatalf("Failed to listen: %v", err)
-	}
+	//router := gin.Default()
 
-	s := grpc.NewServer()
-	employee.RegisterEmployeeServiceServer(s, &server{})
+	//router.POST("/employee", handler.CreateEmployee)
+	//router.GET("/employee/:id", handler.GetEmployee)
+	//router.PUT("/employee/:id", handler.UpdateEmployee)
+	//router.DELETE("/employee/:id", handler.DeleteEmployee)
+	//router.GET("/employee", handler.AllEmployee)
 
-	log.Println("Server started on :50051")
-	if err := s.Serve(lis); err != nil {
-		log.Fatalf("Failed to serve: %v", err)
-	}
+	//router.Run()
 }
