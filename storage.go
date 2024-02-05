@@ -2,6 +2,7 @@ package restAPITest
 
 import (
 	"database/sql"
+	"fmt"
 	_ "github.com/lib/pq"
 	"github.com/lithammer/shortuuid"
 )
@@ -33,28 +34,35 @@ func NewMemoryStorage(Db *sql.DB) *MemoryStorage {
 }
 
 func (s *MemoryStorage) Insert(e *Employee) Employee {
-	sqlStatement := "INSERT INTO users (id, name, sex, age, salary) VALUES ($1, $2, $3, $4, $5)"
+	sqlStatement := "INSERT INTO employeeGo (id, name, sex, age, salary) VALUES ($1, $2, $3, $4, $5)"
 	var id = shortuuid.New()
 	_, err := s.db.Query(sqlStatement, id, e.Name, e.Sex, e.Age, e.Salary)
 	if err != nil {
-		panic(err)
+		fmt.Print("Error")
 	}
 
 	return Employee{id, e.Name, e.Sex, e.Age, e.Salary}
 }
 
 func (s *MemoryStorage) Get(id string) (Employee, error) {
-	result, err := s.db.Query("SELECT * FROM users WHERE id = $1 ", id)
+	result, err := s.db.Query("SELECT * FROM employeeGo WHERE id = $1 ", id)
 
 	if err != nil {
-		panic(err.Error())
+		fmt.Print("Error")
 	}
 	var emp Employee
+	found := false
+
 	for result.Next() {
 		err := result.Scan(&emp.ID, &emp.Name, &emp.Sex, &emp.Age, &emp.Salary)
 		if err != nil {
 			panic(err.Error())
 		}
+		found = true
+	}
+
+	if !found {
+		return Employee{}, fmt.Errorf("user not found")
 	}
 	return emp, nil
 }
@@ -92,7 +100,7 @@ func (s *MemoryStorage) All() []Employee {
 
 	rows, err := s.db.Query("SELECT * FROM users")
 	if err != nil {
-		panic(err)
+		fmt.Printf("error")
 	}
 	for rows.Next() {
 		err := rows.Scan(&id, &name, &sex, &age, &salary)
