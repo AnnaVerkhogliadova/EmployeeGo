@@ -15,7 +15,7 @@ var (
 )
 
 type Storage interface {
-	Insert(e *Employee) Employee
+	Insert(e *Employee) string
 	Get(id string) (Employee, error)
 	Update(id string, e *Employee) Employee
 	Delete(id string)
@@ -32,19 +32,20 @@ func NewMemoryStorage(Db *sql.DB) *MemoryStorage {
 	}
 }
 
-func (s *MemoryStorage) Insert(e *Employee) Employee {
-	sqlStatement := "INSERT INTO users (id, name, sex, age, salary) VALUES ($1, $2, $3, $4, $5)"
+func (s *MemoryStorage) Insert(e *Employee) string {
+	sqlStatement := "INSERT INTO employeeGo (id, name, sex, age, salary) VALUES ($1, $2, $3, $4, $5)"
 	var id = shortuuid.New()
 	_, err := s.db.Query(sqlStatement, id, e.Name, e.Sex, e.Age, e.Salary)
 	if err != nil {
 		panic(err)
 	}
+	response := "EmployeeId: " + id
 
-	return Employee{id, e.Name, e.Sex, e.Age, e.Salary}
+	return response
 }
 
 func (s *MemoryStorage) Get(id string) (Employee, error) {
-	result, err := s.db.Query("SELECT * FROM users WHERE id = $1 ", id)
+	result, err := s.db.Query("SELECT * FROM employeeGo WHERE id = $1 ", id)
 
 	if err != nil {
 		panic(err.Error())
@@ -60,7 +61,7 @@ func (s *MemoryStorage) Get(id string) (Employee, error) {
 }
 
 func (s *MemoryStorage) Update(id string, e *Employee) Employee {
-	sqlStatement := "UPDATE users SET name = $2, sex = $3, age = $4, salary = $5 " +
+	sqlStatement := "UPDATE employeeGo SET name = $2, sex = $3, age = $4, salary = $5 " +
 		"WHERE id = $1 RETURNING id, name, sex, age, salary"
 	result, err := s.db.Query(sqlStatement, id, e.Name, e.Sex, e.Age, e.Salary)
 
@@ -79,7 +80,7 @@ func (s *MemoryStorage) Update(id string, e *Employee) Employee {
 }
 
 func (s *MemoryStorage) Delete(id string) {
-	st, err := s.db.Prepare("DELETE FROM users WHERE id = $1")
+	st, err := s.db.Prepare("DELETE FROM employeeGo WHERE id = $1")
 
 	if err != nil {
 		panic(err)
@@ -90,7 +91,7 @@ func (s *MemoryStorage) Delete(id string) {
 func (s *MemoryStorage) All() []Employee {
 	var emp []Employee
 
-	rows, err := s.db.Query("SELECT * FROM users")
+	rows, err := s.db.Query("SELECT * FROM employeeGo")
 	if err != nil {
 		panic(err)
 	}
