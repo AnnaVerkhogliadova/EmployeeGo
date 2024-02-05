@@ -11,9 +11,9 @@ import (
 const (
 	host     = "localhost"
 	port     = 5432
-	user     = "postgres"
+	user     = "user"
 	password = 1234
-	dbname   = "usersGo"
+	dbname   = "employeeGo"
 )
 
 var Validator = validator.New()
